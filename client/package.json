@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node ../node_modules/vite/bin/vite.js",
-    "build": "node ../node_modules/typescript/bin/tsc -p . && node ../node_modules/vite/bin/vite.js build",
-    "preview": "node ../node_modules/vite/bin/vite.js preview",
-    "lint": "node ../node_modules/typescript/bin/tsc -p . --noEmit"
+    "dev": "vite",
+    "build": "node build.js",
+    "preview": "vite preview",
+    "lint": "tsc -p . --noEmit"
   },
   "dependencies": {
     "@interviewiq/shared": "*",
@@ -19,7 +19,10 @@
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.2.0",
     "recharts": "^2.15.1",
-    "tailwind-merge": "^3.0.1"
+    "tailwind-merge": "^3.0.1",
+    "typescript": "^5.7.3",
+    "vite": "^6.1.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",

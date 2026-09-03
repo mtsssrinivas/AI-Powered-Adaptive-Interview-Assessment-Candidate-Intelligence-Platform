@@ -4,13 +4,13 @@
   "private": true,
   "main": "dist/server.js",
   "scripts": {
-    "build": "node ../node_modules/typescript/bin/tsc -p .",
+    "build": "tsc -p .",
     "dev": "node ../node_modules/ts-node-dev/lib/bin.js --respawn --transpile-only src/server.ts",
     "worker": "node ../node_modules/ts-node-dev/lib/bin.js --respawn --transpile-only src/worker.ts",
     "start": "node dist/server.js",
     "test": "node ../node_modules/vitest/vitest.mjs run",
     "test:watch": "node ../node_modules/vitest/vitest.mjs",
-    "lint": "node ../node_modules/typescript/bin/tsc -p . --noEmit"
+    "lint": "tsc -p . --noEmit"
   },
   "dependencies": {
     "@interviewiq/shared": "*",

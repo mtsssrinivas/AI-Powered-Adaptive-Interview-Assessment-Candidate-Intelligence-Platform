@@ -17,8 +17,9 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@interviewiq/shared": ["../shared/src"]
     }
   },
-  "include": ["src"]
+  "include": ["src", "../shared/src"]
 }

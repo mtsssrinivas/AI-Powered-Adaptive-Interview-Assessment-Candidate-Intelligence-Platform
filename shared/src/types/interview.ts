@@ -1,6 +1,5 @@
 import { z } from 'zod';
 import { InterviewTypeEnum, ExperienceLevelSchema } from './user';
-import { SkillCategorySchema } from './resume';
 
 export const InterviewStateEnum = z.enum([
   'CREATED',
