@@ -1,9 +1,9 @@
 import { Router } from 'express';
+import { AIController } from './ai.controller';
 
 const router = Router();
 
-router.get('/', (_req, res) => {
-  res.json({ message: 'AI module active' });
-});
+router.get('/status', AIController.getStatus);
+router.get('/models', AIController.getModels);
 
 export default router;

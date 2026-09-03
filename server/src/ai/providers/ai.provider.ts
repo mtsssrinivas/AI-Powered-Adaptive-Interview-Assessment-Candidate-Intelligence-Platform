@@ -110,7 +110,7 @@ export class MockAIProvider implements IAIProvider {
   name = 'mock' as const;
 
   async completeStructured<T>(
-    _systemPrompt: string,
+    systemPrompt: string,
     userPrompt: string,
     schema: z.ZodType<T>,
     options: CompletionOptions
@@ -118,7 +118,12 @@ export class MockAIProvider implements IAIProvider {
     const startTime = Date.now();
 
     // Check if this is a question generation request
-    if (userPrompt.includes('INTERVIEW STAGE CONTEXT') || userPrompt.includes('Target Competency Category')) {
+    if (
+      userPrompt.includes('INTERVIEW STAGE CONTEXT') ||
+      userPrompt.includes('Target Competency Category') ||
+      systemPrompt.includes('question generator') ||
+      userPrompt.includes('Target role:')
+    ) {
       const skillMatch = userPrompt.match(/Specific Skill to Assess:\s*([^\n]+)/);
       const skill = skillMatch ? skillMatch[1].trim() : 'Node.js';
       const catMatch = userPrompt.match(/Target Competency Category:\s*([^\n]+)/);
