@@ -32,9 +32,18 @@ export const inMemoryStore = new InMemoryRelationalStore();
 
 export const initPostgres = async (): Promise<void> => {
   try {
+    const isCloudDb =
+      env.POSTGRES_URL.includes('render.com') ||
+      env.POSTGRES_URL.includes('supabase') ||
+      env.POSTGRES_URL.includes('neon') ||
+      env.POSTGRES_URL.includes('amazonaws.com') ||
+      env.POSTGRES_URL.includes('sslmode=require') ||
+      (env.NODE_ENV === 'production' && !env.POSTGRES_URL.includes('localhost') && !env.POSTGRES_URL.includes('127.0.0.1'));
+
     pool = new Pool({
       connectionString: env.POSTGRES_URL,
-      connectionTimeoutMillis: 3000,
+      connectionTimeoutMillis: 5000,
+      ssl: isCloudDb ? { rejectUnauthorized: false } : undefined,
     });
 
     const client = await pool.connect();

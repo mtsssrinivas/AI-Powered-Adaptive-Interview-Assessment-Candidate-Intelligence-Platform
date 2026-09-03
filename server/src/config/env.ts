@@ -6,7 +6,7 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   PORT: parseInt(process.env.PORT || '5000', 10),
-  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
+  CLIENT_URL: process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173',
 
   // JWT
   JWT_SECRET: process.env.JWT_SECRET || 'dev_jwt_secret_min_32_characters_long_interviewiq_platform!',
@@ -14,7 +14,7 @@ export const env = {
 
   // Databases
   MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/interviewiq',
-  POSTGRES_URL: process.env.POSTGRES_URL || 'postgresql://postgres:postgres@localhost:5432/interviewiq',
+  POSTGRES_URL: process.env.DATABASE_URL || process.env.POSTGRES_URL || 'postgresql://postgres:postgres@localhost:5432/interviewiq',
   REDIS_URL: process.env.REDIS_URL || 'redis://localhost:6379',
 
   // AI (OpenRouter)

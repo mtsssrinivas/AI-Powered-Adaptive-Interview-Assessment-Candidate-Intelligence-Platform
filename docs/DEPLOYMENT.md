@@ -33,7 +33,7 @@ This guide details three production deployment pathways for InterviewIQ 2.0, ran
 
 ## Deployment Pathway 1: 1-Click Render Blueprint (`render.yaml`)
 
-Render provides an Infrastructure-as-Code blueprint that automatically orchestrates the web client, API server, managed PostgreSQL, and managed Redis from the included `render.yaml`.
+Render provides an Infrastructure-as-Code blueprint that orchestrates the API server and Redis Key Value store from the included `render.yaml`. Because Render limits accounts to one active free-tier PostgreSQL database, `render.yaml` reuses your existing PostgreSQL instance via `DATABASE_URL`.
 
 ### Steps:
 1. Fork or push the repository to your GitHub account:
@@ -41,15 +41,13 @@ Render provides an Infrastructure-as-Code blueprint that automatically orchestra
 2. Navigate to [Render Dashboard](https://dashboard.render.com/) and click **New +** ➔ **Blueprint**.
 3. Select this repository. Render will automatically detect `render.yaml` and configure:
    - `interviewiq-api`: Node.js Web Service running `node server/dist/server.js` with healthcheck `/api/v1/health`
-   - `interviewiq-web`: Static Site serving `client/dist` with SPA fallbacks
-   - `interviewiq-postgres`: Managed PostgreSQL database
-   - `interviewiq-redis`: Managed Redis cache
-4. Fill in the required environment secrets when prompted:
-   - `MONGODB_URI`: Connection string from MongoDB Atlas (e.g. `mongodb+srv://...`)
-   - `OPENROUTER_API_KEY`: Your OpenRouter API key (`sk-or-v1-...`)
-   - `RAZORPAY_KEY_ID`: Your Razorpay Key ID
-   - `RAZORPAY_KEY_SECRET`: Your Razorpay Secret Key
-5. Click **Apply**. Render will automatically build the shared workspace, server, and client, and link the services together.
+   - `interviewiq-redis`: Managed Key Value Redis store
+4. Fill in the required environment variables when prompted:
+   - `DATABASE_URL`: Connection string from your existing PostgreSQL database (e.g., from your Render dashboard, copy the *Internal Database URL* or *External Database URL*).
+   - `MONGODB_URI`: Connection string from MongoDB Atlas (`mongodb+srv://...`).
+   - `OPENROUTER_API_KEY`: Your OpenRouter API key (`sk-or-v1-...` or `mock`).
+   - `CLIENT_URL`: Your frontend URL (e.g. `https://your-app.vercel.app`).
+5. Click **Apply**. Render will build the shared workspace, compile the server, and start the API with automated healthcheck monitoring.
 
 ---
 

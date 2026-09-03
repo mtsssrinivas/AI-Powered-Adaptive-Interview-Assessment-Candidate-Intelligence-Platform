@@ -19,17 +19,21 @@ services:
         generateValue: true
       - key: JWT_EXPIRES_IN
         value: 7d
+      # PostgreSQL Database Connection String (from existing Render Postgres or external Postgres)
+      - key: DATABASE_URL
+        sync: false
       - key: POSTGRES_URL
-        fromDatabase:
-          name: interviewiq-postgres
-          property: connectionString
+        sync: false
+      # Redis Cache & BullMQ Broker
       - key: REDIS_URL
         fromService:
           type: redis
           name: interviewiq-redis
           property: connectionString
+      # MongoDB Atlas Connection String
       - key: MONGODB_URI
         sync: false
+      # AI & Payment API Keys
       - key: OPENROUTER_API_KEY
         sync: false
       - key: OPENROUTER_MODEL
@@ -39,17 +43,9 @@ services:
       - key: RAZORPAY_KEY_SECRET
         sync: false
 
-  # Redis Cache & BullMQ Broker
+  # Redis Cache & BullMQ Broker (Free Key Value store)
   - type: redis
     name: interviewiq-redis
     plan: free
     region: oregon
     ipAllowList: []
-
-databases:
-  # Managed PostgreSQL Database
-  - name: interviewiq-postgres
-    plan: free
-    region: oregon
-    databaseName: interviewiq
-    user: interviewiq_user
