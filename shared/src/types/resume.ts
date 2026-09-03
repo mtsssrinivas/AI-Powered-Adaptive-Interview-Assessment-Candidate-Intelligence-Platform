@@ -17,10 +17,10 @@ export const ExtractedSkillSchema = z.object({
   skill: z.string(),
   category: SkillCategorySchema,
   evidence: z.string(),
-  source: z.literal('resume').default('resume'),
-  confidence: z.number().min(0).max(1).default(1.0),
+  source: z.literal('resume'),
+  confidence: z.number().min(0).max(1),
 });
-export type ExtractedSkill = z.infer<typeof ExtractedSkillSchema>;
+export type ExtractedSkill = z.output<typeof ExtractedSkillSchema>;
 
 export const ExtractedProjectSchema = z.object({
   projectName: z.string(),
@@ -31,7 +31,7 @@ export const ExtractedProjectSchema = z.object({
   technicalConcepts: z.array(z.string()).default([]),
   evidenceSnippet: z.string().optional(),
 });
-export type ExtractedProject = z.infer<typeof ExtractedProjectSchema>;
+export type ExtractedProject = z.output<typeof ExtractedProjectSchema>;
 
 export const ExtractedExperienceSchema = z.object({
   company: z.string(),
@@ -40,7 +40,7 @@ export const ExtractedExperienceSchema = z.object({
   responsibilities: z.array(z.string()),
   technologies: z.array(z.string()),
 });
-export type ExtractedExperience = z.infer<typeof ExtractedExperienceSchema>;
+export type ExtractedExperience = z.output<typeof ExtractedExperienceSchema>;
 
 export const ExtractedEducationSchema = z.object({
   institution: z.string(),
@@ -49,7 +49,7 @@ export const ExtractedEducationSchema = z.object({
   graduationYear: z.string().optional(),
   gpa: z.string().optional(),
 });
-export type ExtractedEducation = z.infer<typeof ExtractedEducationSchema>;
+export type ExtractedEducation = z.output<typeof ExtractedEducationSchema>;
 
 export const ParsedCandidateProfileSchema = z.object({
   candidateName: z.string(),
@@ -63,7 +63,7 @@ export const ParsedCandidateProfileSchema = z.object({
   certifications: z.array(z.string()).default([]),
   achievements: z.array(z.string()).default([]),
 });
-export type ParsedCandidateProfile = z.infer<typeof ParsedCandidateProfileSchema>;
+export type ParsedCandidateProfile = z.output<typeof ParsedCandidateProfileSchema>;
 
 export const ResumeStatusSchema = z.enum([
   'PENDING',
@@ -72,7 +72,7 @@ export const ResumeStatusSchema = z.enum([
   'COMPLETED',
   'FAILED',
 ]);
-export type ResumeStatus = z.infer<typeof ResumeStatusSchema>;
+export type ResumeStatus = z.output<typeof ResumeStatusSchema>;
 
 export const ResumeSchema = z.object({
   id: z.string(),
@@ -81,9 +81,9 @@ export const ResumeSchema = z.object({
   fileSize: z.number(),
   rawText: z.string().optional(),
   parsedProfile: ParsedCandidateProfileSchema.optional(),
-  status: ResumeStatusSchema.default('PENDING'),
+  status: ResumeStatusSchema,
   errorMessage: z.string().optional(),
   createdAt: z.string().or(z.date()),
   updatedAt: z.string().or(z.date()),
 });
-export type Resume = z.infer<typeof ResumeSchema>;
+export type Resume = z.output<typeof ResumeSchema>;
