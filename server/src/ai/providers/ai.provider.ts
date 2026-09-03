@@ -265,6 +265,61 @@ export class MockAIProvider implements IAIProvider {
       };
     }
 
+    // Check if this is a preparation plan request
+    if (userPrompt.includes('CANDIDATE PROFILE GAPS')) {
+      const roleMatch = userPrompt.match(/Target Role:\s*([^\n]+)/);
+      const targetRole = roleMatch ? roleMatch[1].trim() : 'Senior Backend Engineer';
+
+      const planOutput = {
+        userId: 'plan_ctx',
+        generatedAt: new Date().toISOString(),
+        targetRole,
+        readinessGap: 28,
+        recommendations: [
+          {
+            priority: 1,
+            category: 'System Design',
+            topic: 'Distributed Caching and Consistency Boundaries',
+            reason: 'Demonstrated ambiguity when explaining write-through vs write-behind cache failure modes.',
+            recommendedAction:
+              'Design an LRU cache with Redis clustering. Practice handling cache stampedes via distributed mutex locking.',
+            estimatedHours: 6,
+            completed: false,
+          },
+          {
+            priority: 2,
+            category: 'Databases',
+            topic: 'Transaction Isolation and Deadlock Detection in PostgreSQL',
+            reason: 'Scored lower on transaction concurrency and snapshot isolation locks.',
+            recommendedAction:
+              'Review PostgreSQL MVCC internals. Simulate concurrent bank account transfers with SELECT ... FOR UPDATE.',
+            estimatedHours: 4,
+            completed: false,
+          },
+          {
+            priority: 3,
+            category: 'CS Fundamentals',
+            topic: 'Graph Algorithms & Sliding Window Optimization',
+            reason: 'Solid hash map skills, but room for acceleration on dynamic programming and two-pointer bounds.',
+            recommendedAction:
+              'Solve 5 medium-difficulty LeetCode problems on sliding windows and Dijkstra shortest path.',
+            estimatedHours: 8,
+            completed: false,
+          },
+        ],
+      };
+
+      const validated = schema.parse(planOutput as any);
+      return {
+        data: validated,
+        rawResponse: JSON.stringify(validated),
+        model: 'mock-evaluator',
+        provider: 'mock',
+        tokensUsed: 420,
+        latencyMs: Date.now() - startTime,
+      };
+    }
+
     // Generate compliant mock based on text analysis
     const lines = userPrompt.split('\n').map((l) => l.trim()).filter(Boolean);
     const candidateName = lines.find((l) => l.length > 2 && !l.includes(':')) || 'Alex Mercer';
