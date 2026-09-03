@@ -12,11 +12,11 @@ export const errorHandler = (
 ): void => {
   const requestId = req.requestId || 'unknown';
 
-  if (err instanceof ZodError) {
+  if (err instanceof ZodError || err?.name === 'ZodError') {
     res.status(400).json({
       success: false,
       error: 'Validation failed',
-      details: err.issues.map((issue) => ({
+      details: (err.issues || []).map((issue: any) => ({
         path: issue.path.join('.'),
         message: issue.message,
       })),
