@@ -16,6 +16,7 @@ import {
 } from '@interviewiq/shared';
 import { ValidationError, NotFoundError } from '../../utils/errors';
 import { logger } from '../../config/logger';
+import { SkillsService } from '../skills/skills.service';
 
 export const inMemoryResumeStore = new Map<string, Resume>();
 
@@ -93,6 +94,13 @@ export class ResumesService {
     }
 
     inMemoryResumeStore.set(resumeId, resumeEntity);
+
+    // Seed candidate skill graph with extracted exposure evidence
+    if (parsedProfile.skills && parsedProfile.skills.length > 0) {
+      await SkillsService.seedSkillsFromResume(userId, parsedProfile.skills).catch((err) => {
+        logger.warn('Failed seeding candidate skill graph from resume:', { error: err.message });
+      });
+    }
 
     return resumeEntity;
   }
