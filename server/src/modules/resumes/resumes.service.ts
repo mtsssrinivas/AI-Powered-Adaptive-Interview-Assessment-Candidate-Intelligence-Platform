@@ -35,14 +35,15 @@ export class ResumesService {
       const pdfData = await pdfParse(fileBuffer);
       rawText = pdfData.text ? pdfData.text.trim() : '';
     } catch (err: any) {
-      // Fallback stream text extraction if xref table is corrupted in mock/test buffers
+      logger.warn('PDF parser encountered error, falling back to stream scan:', { error: err.message });
+    }
+
+    // Fallback stream text extraction if pdf-parse yielded insufficient text
+    if (!rawText || rawText.length < 20) {
       const asString = fileBuffer.toString('utf-8');
       const textMatches = asString.match(/\(([^)]+)\)\s*Tj/g);
       if (textMatches && textMatches.length > 0) {
         rawText = textMatches.map((m) => m.replace(/[()]/g, '').replace(/Tj/, '').trim()).join('\n');
-      } else {
-        logger.error('PDF extraction failed:', { error: err.message, fileName });
-        throw new ValidationError('Could not parse PDF. The file may be corrupt or encrypted.');
       }
     }
 

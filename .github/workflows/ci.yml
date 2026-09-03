@@ -29,9 +29,10 @@ jobs:
           - 6379:6379
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -40,19 +41,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build shared types
-        run: npm run build --workspace=shared
+      - name: Build shared workspace
+        run: npm run build:shared
 
       - name: Lint & Typecheck
         run: npm run lint
 
-      - name: Run backend tests
-        run: npm run test --workspace=server
+      - name: Run automated test suite
+        run: npm test
         env:
+          NODE_ENV: test
           MONGODB_URI: mongodb://localhost:27017/interviewiq_test
           POSTGRES_URL: postgresql://postgres:postgrespassword@localhost:5432/interviewiq_test
           REDIS_URL: redis://localhost:6379
           JWT_SECRET: test_secret_key_ci_environment_32chars_long!
 
-      - name: Build client
-        run: npm run build --workspace=client
+      - name: Build production client
+        run: npm run build:client
