@@ -149,9 +149,12 @@ export const Reports: React.FC = () => {
                     P{plan.priority}
                   </span>
                   <div className="space-y-1 text-xs">
-                    <div className="font-semibold text-slate-900">{plan.topic}</div>
-                    <p className="text-slate-600">{plan.reason}</p>
-                    <p className="text-slate-500 italic">Action: {plan.actionableAdvice}</p>
+                    <div className="font-semibold text-slate-900">
+                      Focus: {plan.weaknesses.join(', ') || 'Foundation Drill'}
+                    </div>
+                    {plan.strengths.length > 0 && (
+                      <p className="text-slate-600">Established Anchor: {plan.strengths.join(', ')}</p>
+                    )}
                   </div>
                 </div>
               ))}
