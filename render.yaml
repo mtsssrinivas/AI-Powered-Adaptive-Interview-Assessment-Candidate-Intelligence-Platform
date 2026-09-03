@@ -52,4 +52,4 @@ databases:
     plan: free
     region: oregon
     databaseName: interviewiq
-    user: postgres
+    user: interviewiq_user
