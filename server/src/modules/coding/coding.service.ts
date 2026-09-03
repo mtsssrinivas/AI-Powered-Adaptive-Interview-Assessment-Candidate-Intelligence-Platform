@@ -132,6 +132,17 @@ export class CodingService {
   }
 
   private static async logCodeExecution(sub: CodingSubmission): Promise<void> {
+    const table = inMemoryStore.getTable('code_executions');
+    table.set(sub.id, {
+      id: sub.id,
+      interviewId: sub.interviewId,
+      language: sub.language,
+      status: sub.status,
+      executionTimeMs: sub.runtimeMs,
+      memoryUsedKb: sub.memoryKb,
+      createdAt: new Date(),
+    });
+
     try {
       await queryPostgres(
         `INSERT INTO code_executions (id, interview_id, language, source_code, status, execution_time_ms, memory_used_kb, error_output)
@@ -148,16 +159,7 @@ export class CodingService {
         ]
       );
     } catch {
-      const table = inMemoryStore.getTable('code_executions');
-      table.set(sub.id, {
-        id: sub.id,
-        interviewId: sub.interviewId,
-        language: sub.language,
-        status: sub.status,
-        executionTimeMs: sub.runtimeMs,
-        memoryUsedKb: sub.memoryKb,
-        createdAt: new Date(),
-      });
+      // Postgres error ignored in fallback mode
     }
   }
 }

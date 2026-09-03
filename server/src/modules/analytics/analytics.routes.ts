@@ -1,9 +1,11 @@
 import { Router } from 'express';
+import { AnalyticsController } from './analytics.controller';
+import { requireAuth } from '../../middleware/authMiddleware';
 
 const router = Router();
 
-router.get('/', (_req, res) => {
-  res.json({ message: 'Analytics module active' });
-});
+router.get('/overview', requireAuth, AnalyticsController.getOverview);
+router.get('/trends', requireAuth, AnalyticsController.getTrends);
+router.get('/competencies', requireAuth, AnalyticsController.getCompetencies);
 
 export default router;
