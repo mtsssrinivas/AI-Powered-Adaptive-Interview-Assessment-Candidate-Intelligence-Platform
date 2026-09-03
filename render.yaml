@@ -4,7 +4,8 @@ services:
     name: interviewiq-api
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build:shared && npm run build:server
+    region: oregon
+    buildCommand: npm install && npm run build:shared && npm run build:server
     startCommand: node server/dist/server.js
     healthCheckPath: /api/v1/health
     envVars:
@@ -13,10 +14,7 @@ services:
       - key: PORT
         value: 5000
       - key: CLIENT_URL
-        fromService:
-          type: web
-          name: interviewiq-web
-          property: host
+        sync: false
       - key: JWT_SECRET
         generateValue: true
       - key: JWT_EXPIRES_IN
@@ -41,32 +39,17 @@ services:
       - key: RAZORPAY_KEY_SECRET
         sync: false
 
-  # Frontend Web Client Static Site
-  - type: web
-    name: interviewiq-web
-    runtime: static
-    buildCommand: npm ci && npm run build:shared && npm run build:client
-    staticPublishPath: ./client/dist
-    routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://interviewiq-api.onrender.com/api/*
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    envVars:
-      - key: VITE_API_BASE_URL
-        value: /api/v1
-
-  # Redis Cache & Queue Broker
+  # Redis Cache & BullMQ Broker
   - type: redis
     name: interviewiq-redis
     plan: free
+    region: oregon
     ipAllowList: []
 
 databases:
-  # PostgreSQL Database
+  # Managed PostgreSQL Database
   - name: interviewiq-postgres
     plan: free
+    region: oregon
     databaseName: interviewiq
     user: postgres

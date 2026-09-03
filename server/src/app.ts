@@ -18,7 +18,23 @@ export const createApp = (): Express => {
 
   // CORS
   app.use(cors({
-    origin: [env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:8080', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      const allowedOrigins = [
+        env.CLIENT_URL,
+        'http://localhost:5173',
+        'http://localhost:8080',
+        'http://localhost:3000',
+      ];
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('.onrender.com')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'Idempotency-Key'],
