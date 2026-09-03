@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { CreateInterviewInputSchema } from '@interviewiq/shared';
 import { InterviewsService } from './interviews.service';
+import { QuestionsService } from '../questions/questions.service';
 
 export class InterviewsController {
   static async createInterview(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -30,6 +31,16 @@ export class InterviewsController {
       const userId = req.user!.id;
       const sessions = await InterviewsService.getInterviewsByUser(userId);
       res.status(200).json(sessions);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  static async getNextQuestion(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const interviewId = req.params.id;
+      const question = await QuestionsService.generateNextQuestion(interviewId);
+      res.status(201).json(question);
     } catch (error) {
       next(error);
     }

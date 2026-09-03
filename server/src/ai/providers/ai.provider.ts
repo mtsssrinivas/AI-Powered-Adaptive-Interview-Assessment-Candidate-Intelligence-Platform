@@ -117,6 +117,58 @@ export class MockAIProvider implements IAIProvider {
   ): Promise<StructuredCompletionResult<T>> {
     const startTime = Date.now();
 
+    // Check if this is a question generation request
+    if (userPrompt.includes('INTERVIEW STAGE CONTEXT') || userPrompt.includes('Target Competency Category')) {
+      const skillMatch = userPrompt.match(/Specific Skill to Assess:\s*([^\n]+)/);
+      const skill = skillMatch ? skillMatch[1].trim() : 'Node.js';
+      const catMatch = userPrompt.match(/Target Competency Category:\s*([^\n]+)/);
+      const category = catMatch ? catMatch[1].trim() : 'Backend';
+      const diffMatch = userPrompt.match(/Calibrated Difficulty:\s*([^\n]+)/);
+      const difficulty = (diffMatch ? diffMatch[1].trim() : 'MEDIUM') as any;
+      const typeMatch = userPrompt.match(/Target Question Type:\s*([^\n]+)/);
+      const questionType = (typeMatch ? typeMatch[1].trim() : 'SCENARIO') as any;
+      const evidenceMatch = userPrompt.match(/Candidate Resume Project Evidence:\s*"([^"]+)"/);
+      const resumeEvidence = evidenceMatch ? evidenceMatch[1] : undefined;
+
+      let questionText = `When architecting a high-throughput ${skill} service, how do you manage backpressure and handle downstream database connection exhaustion under burst traffic?`;
+      if (resumeEvidence) {
+        questionText = `In your resume project, you mentioned: "${resumeEvidence}". In that architecture, how did you ensure data consistency and manage worker failover when network partitions occurred?`;
+      }
+
+      const generatedQuestion = {
+        id: `q_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        interviewId: 'interview_ctx',
+        orderIndex: 0,
+        question: questionText,
+        category,
+        skill,
+        difficulty: ['EASY', 'MEDIUM', 'HARD', 'EXPERT'].includes(difficulty) ? difficulty : 'MEDIUM',
+        expectedConcepts: [
+          'Backpressure mechanisms and queue buffering',
+          'Connection pool saturation and timeout bounds',
+          'Idempotency and circuit breaker implementation',
+        ],
+        questionType: ['CONCEPTUAL', 'SCENARIO', 'SYSTEM_DESIGN', 'PROJECT_DEFENSE', 'CODING'].includes(questionType)
+          ? questionType
+          : 'SCENARIO',
+        source: resumeEvidence ? 'RESUME_PROJECT' : 'PLAN',
+        resumeEvidenceCited: resumeEvidence,
+        followUpPotential: true,
+        promptVersion: options.promptVersion,
+        createdAt: new Date().toISOString(),
+      };
+
+      const validated = schema.parse(generatedQuestion as any);
+      return {
+        data: validated,
+        rawResponse: JSON.stringify(validated),
+        model: 'mock-evaluator',
+        provider: 'mock',
+        tokensUsed: 320,
+        latencyMs: Date.now() - startTime,
+      };
+    }
+
     // Generate compliant mock based on text analysis
     const lines = userPrompt.split('\n').map((l) => l.trim()).filter(Boolean);
     const candidateName = lines.find((l) => l.length > 2 && !l.includes(':')) || 'Alex Mercer';
