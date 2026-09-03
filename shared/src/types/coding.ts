@@ -1,7 +1,14 @@
 import { z } from 'zod';
 import { DifficultyLevelEnum } from './interview';
 
-export const SupportedLanguageEnum = z.enum(['python', 'javascript', 'cpp', 'java']);
+export const SupportedLanguageEnum = z.enum([
+  'python',
+  'javascript',
+  'typescript',
+  'java',
+  'cpp',
+  'go',
+]);
 export type SupportedLanguage = z.infer<typeof SupportedLanguageEnum>;
 
 export const ExecutionStatusEnum = z.enum([
@@ -33,10 +40,10 @@ export const CodingProblemSchema = z.object({
   difficulty: DifficultyLevelEnum,
   category: z.string(),
   description: z.string(),
-  constraints: z.array(z.string()),
+  constraints: z.array(z.string()).default([]),
   starterCode: z.record(SupportedLanguageEnum, z.string()),
   testCases: z.array(TestCaseSchema),
-  timeLimitMs: z.number().default(3000),
+  timeLimitMs: z.number().default(2000),
   memoryLimitMb: z.number().default(128),
 });
 export type CodingProblem = z.infer<typeof CodingProblemSchema>;
@@ -57,6 +64,7 @@ export const CodingSubmissionSchema = z.object({
   id: z.string(),
   userId: z.string(),
   problemId: z.string(),
+  interviewId: z.string().optional(),
   language: SupportedLanguageEnum,
   code: z.string(),
   status: ExecutionStatusEnum,
@@ -65,15 +73,24 @@ export const CodingSubmissionSchema = z.object({
   totalCount: z.number().int().nonnegative(),
   runtimeMs: z.number(),
   memoryKb: z.number(),
-  results: z.array(TestCaseResultSchema),
+  results: z.array(TestCaseResultSchema).default([]),
+  aiEvaluation: z.record(z.any()).optional(),
   compileError: z.string().optional(),
   createdAt: z.string().or(z.date()),
 });
 export type CodingSubmission = z.infer<typeof CodingSubmissionSchema>;
 
+export const RunCodeInputSchema = z.object({
+  problemId: z.string(),
+  language: SupportedLanguageEnum,
+  code: z.string().min(1, 'Code cannot be empty'),
+});
+export type RunCodeInput = z.infer<typeof RunCodeInputSchema>;
+
 export const SubmitCodeInputSchema = z.object({
   problemId: z.string(),
   language: SupportedLanguageEnum,
   code: z.string().min(1, 'Code cannot be empty'),
+  interviewId: z.string().optional(),
 });
 export type SubmitCodeInput = z.infer<typeof SubmitCodeInputSchema>;
