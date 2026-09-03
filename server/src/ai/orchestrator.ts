@@ -9,6 +9,7 @@ import {
   MockAIProvider,
   StructuredCompletionResult,
 } from './providers/ai.provider';
+import { PromptSanitizer } from '../security/promptSanitizer';
 
 export type AICapability =
   | 'RESUME_PARSER'
@@ -86,6 +87,9 @@ export class AIOrchestrator {
     maxRetries = 3
   ): Promise<StructuredCompletionResult<T>> {
     const requestId = uuidv4();
+    const sanitizedPrompt = PromptSanitizer.sanitize(userPrompt);
+    const effectiveUserPrompt = sanitizedPrompt.sanitized;
+
     const useRealProvider = Boolean(
       env.OPENROUTER_API_KEY && env.OPENROUTER_API_KEY.trim().length > 0
     );
@@ -97,7 +101,7 @@ export class AIOrchestrator {
       try {
         const result = await provider.completeStructured<T>(
           systemPrompt,
-          userPrompt,
+          effectiveUserPrompt,
           schema,
           { promptVersion }
         );
