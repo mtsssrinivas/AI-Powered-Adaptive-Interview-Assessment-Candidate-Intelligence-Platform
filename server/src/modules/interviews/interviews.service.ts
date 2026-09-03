@@ -7,9 +7,12 @@ import {
   CreateInterviewInput,
   InterviewSession,
   InterviewState,
+  SubmitAnswerInput,
+  AnswerEvaluation,
 } from '@interviewiq/shared';
 import { NotFoundError, ValidationError } from '../../utils/errors';
 import { logger } from '../../config/logger';
+import { EvaluatorService, inMemoryEvaluationStore } from '../evaluations/evaluator.service';
 
 export const inMemoryInterviewStore = new Map<string, InterviewSession>();
 
@@ -124,5 +127,46 @@ export class InterviewsService {
     }
 
     return session;
+  }
+
+  static async submitAnswer(
+    interviewId: string,
+    input: SubmitAnswerInput
+  ): Promise<{ evaluation: AnswerEvaluation; session: InterviewSession }> {
+    const session = await this.getInterviewById(interviewId);
+
+    if (session.currentState !== 'QUESTION_ACTIVE') {
+      throw new ValidationError(`Cannot submit answer when interview state is '${session.currentState}'`);
+    }
+
+    const question = session.questions.find((q) => q.id === input.questionId);
+    if (!question) {
+      throw new NotFoundError('Question not found in this interview session');
+    }
+
+    // Duplicate submission guard
+    const evalKey = `${interviewId}:${input.questionId}`;
+    if (inMemoryEvaluationStore.has(evalKey)) {
+      throw new ValidationError('This question has already been answered and evaluated');
+    }
+
+    // State transition 1: ANSWER_SUBMITTED
+    await this.transitionState(interviewId, 'ANSWER_SUBMITTED');
+
+    // Evaluate answer across 6 dimensions
+    const evaluation = await EvaluatorService.evaluateAnswer(session, question, input);
+
+    // State transition 2: ANSWER_EVALUATED
+    await this.transitionState(interviewId, 'ANSWER_EVALUATED');
+
+    // Check if session has reached question target
+    const isCompleted = session.questions.length >= session.plan.totalQuestionTarget;
+    if (isCompleted) {
+      await this.transitionState(interviewId, 'COMPLETED');
+    } else {
+      await this.transitionState(interviewId, 'NEXT_QUESTION');
+    }
+
+    return { evaluation, session };
   }
 }

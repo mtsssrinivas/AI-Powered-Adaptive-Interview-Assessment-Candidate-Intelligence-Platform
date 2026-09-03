@@ -169,6 +169,102 @@ export class MockAIProvider implements IAIProvider {
       };
     }
 
+    // Check if this is an answer evaluation request
+    if (userPrompt.includes('CANDIDATE RESPONSE') || userPrompt.includes('QUESTION DETAILS')) {
+      const ansMatch = userPrompt.match(/CANDIDATE RESPONSE:\s*"""([\s\S]*?)"""/);
+      const answerText = ansMatch ? ansMatch[1].trim() : '';
+
+      // Determine score based on answer content
+      let correctness = 40;
+      let relevance = 45;
+      let depth = 35;
+      let problemSolving = 40;
+      let communication = 50;
+      let completeness = 40;
+
+      const strengths: string[] = [];
+      const weaknesses: string[] = [];
+      const missingConcepts: string[] = [];
+
+      if (answerText.length === 0 || answerText.toLowerCase().includes('idk') || answerText.toLowerCase().includes('no idea')) {
+        correctness = 10;
+        relevance = 20;
+        depth = 10;
+        problemSolving = 10;
+        communication = 30;
+        completeness = 10;
+        weaknesses.push('Candidate did not provide a substantial technical answer.');
+        missingConcepts.push('Core architectural principles', 'Failure handling', 'System state management');
+      } else if (answerText.length > 80) {
+        // Substantive answer
+        correctness = 85;
+        relevance = 90;
+        depth = 80;
+        problemSolving = 84;
+        communication = 82;
+        completeness = 80;
+        strengths.push('Articulated solid reasoning regarding state distribution and buffering.');
+        strengths.push('Understands the impact of connection exhaustion on microservice availability.');
+        if (!answerText.toLowerCase().includes('idempotency')) {
+          missingConcepts.push('Explicit idempotency key management during retry storms.');
+        }
+      } else {
+        // Partially correct / short answer
+        correctness = 62;
+        relevance = 70;
+        depth = 55;
+        problemSolving = 58;
+        communication = 65;
+        completeness = 50;
+        strengths.push('Addressed the basic scenario correctly.');
+        weaknesses.push('Answer lacked deeper discussion of edge cases and failover protocols.');
+        missingConcepts.push('Handling partition network splits', 'Backpressure signaling');
+      }
+
+      const overallScore = Math.round(
+        (correctness + relevance + depth + problemSolving + communication + completeness) / 6
+      );
+
+      const evaluationOutput = {
+        id: `eval_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        interviewId: 'interview_ctx',
+        questionId: 'question_ctx',
+        candidateAnswer: answerText,
+        scores: {
+          technicalCorrectness: correctness,
+          relevance,
+          depth,
+          problemSolving,
+          communication,
+          completeness,
+          overallScore,
+        },
+        strengths,
+        weaknesses,
+        missingConcepts,
+        evidence: `Candidate stated: "${answerText.substring(0, 150)}${answerText.length > 150 ? '...' : ''}"`,
+        recommendedFollowUp:
+          overallScore >= 75
+            ? 'How would you tune TCP keepalive and connection pooling to mitigate pool exhaustion?'
+            : 'Can you walk through what happens at the socket level when a downstream database refuses connections?',
+        confidence: 0.92,
+        evaluationPromptVersion: options.promptVersion,
+        evaluationLatencyMs: Date.now() - startTime,
+        tokensUsed: 410,
+        createdAt: new Date().toISOString(),
+      };
+
+      const validated = schema.parse(evaluationOutput as any);
+      return {
+        data: validated,
+        rawResponse: JSON.stringify(validated),
+        model: 'mock-evaluator',
+        provider: 'mock',
+        tokensUsed: 410,
+        latencyMs: Date.now() - startTime,
+      };
+    }
+
     // Generate compliant mock based on text analysis
     const lines = userPrompt.split('\n').map((l) => l.trim()).filter(Boolean);
     const candidateName = lines.find((l) => l.length > 2 && !l.includes(':')) || 'Alex Mercer';
