@@ -14,6 +14,7 @@ import creditsRoutes from './modules/credits/credits.routes';
 import aiRoutes from './modules/ai/ai.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 import preparationRoutes from './modules/preparation/preparation.routes';
+import knowledgeRoutes from './modules/knowledge/knowledge.routes';
 
 export const createV1Router = (): Router => {
   const router = Router();
@@ -33,6 +34,7 @@ export const createV1Router = (): Router => {
   router.use('/ai', aiRoutes);
   router.use('/analytics', analyticsRoutes);
   router.use('/preparation', preparationRoutes);
+  router.use('/knowledge', knowledgeRoutes);
 
   return router;
 };

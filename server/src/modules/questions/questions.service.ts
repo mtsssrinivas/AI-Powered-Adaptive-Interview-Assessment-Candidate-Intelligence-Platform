@@ -15,6 +15,7 @@ import {
   buildQuestionGeneratorUserPrompt,
 } from '../../ai/prompts/questionGenerator.prompt';
 import { ResumesService } from '../resumes/resumes.service';
+import { RetrievalEngine } from '../knowledge/retrieval.engine';
 import { InterviewSessionModel } from '../../db/mongo/models/InterviewSession.model';
 import { ValidationError } from '../../utils/errors';
 import { logger } from '../../config/logger';
@@ -86,10 +87,19 @@ export class QuestionsService {
 
     const previousQuestions = session.questions.map((q) => q.question);
 
+    // Retrieve verified architectural reference knowledge via RAG
+    const retrieved = RetrievalEngine.retrieveContext(
+      `${session.role} ${targetSkill} ${targetCategory}`,
+      targetCategory,
+      targetSkill,
+      2
+    );
+    const ragContext = RetrievalEngine.formatContextForPrompt(retrieved);
+
     // Call AI Orchestrator
     const completion = await AIOrchestrator.executeStructured(
       'QUESTION_GENERATOR',
-      QUESTION_GENERATOR_SYSTEM_PROMPT,
+      `${QUESTION_GENERATOR_SYSTEM_PROMPT}\n${ragContext}`,
       buildQuestionGeneratorUserPrompt({
         role: session.role,
         interviewMode: session.interviewMode,
