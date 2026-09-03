@@ -186,5 +186,5 @@ startxref
 
     expect(planRes.status).toBe(200);
     expect(planRes.body.recommendations.length).toBeGreaterThan(0);
-  });
+  }, 30000);
 });

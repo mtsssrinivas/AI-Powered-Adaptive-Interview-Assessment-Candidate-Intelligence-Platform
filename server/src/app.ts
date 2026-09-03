@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import { requestLogger } from './middleware/requestLogger';
+import { metricsMiddleware } from './middleware/metricsMiddleware';
 import { errorHandler } from './middleware/errorHandler';
 import { createV1Router } from './routes';
 
@@ -42,6 +43,7 @@ export const createApp = (): Express => {
 
   // Request Logging & Correlation ID
   app.use(requestLogger);
+  app.use(metricsMiddleware);
 
   // Mount API v1
   app.use('/api/v1', createV1Router());
