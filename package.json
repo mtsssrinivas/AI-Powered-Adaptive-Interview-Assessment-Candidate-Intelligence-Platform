@@ -1,0 +1,25 @@
+{
+  "name": "interviewiq-monorepo",
+  "version": "2.0.0",
+  "private": true,
+  "description": "InterviewIQ 2.0 — AI-Powered Adaptive Interview Assessment & Candidate Intelligence Platform",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "node ./node_modules/concurrently/dist/bin/concurrently.js -n \"SERVER,CLIENT\" -c \"blue,cyan\" \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "node ./node_modules/ts-node-dev/lib/bin.js --respawn --transpile-only server/src/server.ts",
+    "dev:client": "npm --prefix client run dev",
+    "build:shared": "node ./node_modules/typescript/bin/tsc -p shared",
+    "build:server": "node ./node_modules/typescript/bin/tsc -p server",
+    "build:client": "npm --prefix client run build",
+    "build": "npm run build:shared && npm run build:server && npm run build:client",
+    "test": "node ./node_modules/vitest/vitest.mjs run --root server",
+    "lint": "npm run build:shared && npm run build:server && npm --prefix client run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
